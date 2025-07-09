@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generatore Robux (Fake)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 90%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 90%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #00bfff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0099cc;
+    }
+
+    .profile {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .profile img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+    }
+
+    .robux-options {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .robux-package {
+      background-color: white;
+      padding: 15px;
+      margin: 10px auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      transition: background-color 0.3s;
+    }
+
+    .robux-package:hover {
+      background-color: #e6f7ff;
+      cursor: pointer;
+    }
+
+    .loading {
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      input, button {
+        font-size: 14px;
+      }
+
+      .robux-package {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Generatore Robux (Fake)</h1>
+
+    <div class="input-area">
+      <input type="text" id="username" placeholder="Inserisci il tuo nome Roblox">
+      <button onclick="start()">Continua</button>
+    </div>
+
+    <div class="profile" id="profileSection">
+      <img id="avatarImage" src="" alt="Avatar Roblox">
+      <p id="displayName"></p>
+    </div>
+
+    <div class="robux-options" id="robuxSection">
+      <!-- Robux Packages -->
+    </div>
+
+    <div class="loading" id="loadingText">Generazione in corso... ⚙️</div>
+  </div>
+
+  <script>
+    const robuxData = [
+      { robux: 24000 },
+      { robux: 11000 },
+      { robux: 5250 },
+      { robux: 2000 },
+      { robux: 1000 },
+      { robux: 500 },
+    ];
+
+    async function start() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) return alert("Inserisci un nome utente valido.");
+
+      try {
+        // Step 1: Get user ID
+        const userRes = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usernames: [username] })
+        });
+        const userData = await userRes.json();
+        if (!userData.data || userData.data.length === 0) {
+          return alert("Utente non trovato.");
+        }
+
+        const userId = userData.data[0].id;
+
+        // Step 2: Get avatar image
+        const avatarRes = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`);
+        const avatarData = await avatarRes.json();
+        const imageUrl = avatarData.data[0].imageUrl;
+
+        // Show profile
+        document.getElementById("displayName").textContent = username;
+        document.getElementById("avatarImage").src = imageUrl;
+        document.getElementById("profileSection").style.display = "block";
+        document.getElementById("robuxSection").style.display = "block";
+
+        // Load robux options
+        const robuxSection = document.getElementById("robuxSection");
+        robuxSection.innerHTML = "";
+
+        robuxData.forEach(pkg => {
+          const div = document.createElement("div");
+          div.className = "robux-package";
+          div.innerHTML = `<strong>${pkg.robux.toLocaleString()} Robux</strong><br><span>Prezzo: 0€</span>`;
+          div.onclick = () => generateRobux(pkg.robux);
+          robuxSection.appendChild(div);
+        });
+
+      } catch (err) {
+        alert("Si è verificato un errore nel recuperare i dati Roblox.");
+        console.error(err);
+      }
+    }
+
+    function generateRobux(amount) {
+      const loading = document.getElementById("loadingText");
+      loading.style.display = "block";
+      loading.textContent = `Stiamo generando ${amount.toLocaleString()} Robux...`;
+
+      setTimeout(() => {
+        loading.textContent = `✔️ ${amount.toLocaleString()} Robux sono stati aggiunti al tuo account! (non davvero 😄)`;
+      }, 3000);
+    }
+  </script>
+
+</body>
+</html
