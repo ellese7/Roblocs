@@ -2,134 +2,126 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fake Generatore Robux</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fake Robux Giver</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffd700, #ff6600);
+      color: #fff;
       text-align: center;
       padding: 2rem;
-      background: linear-gradient(to right, #3b82f6, #9333ea);
-      color: white;
     }
-    input, button {
-      padding: 1rem;
-      margin: 1rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    input {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
       border: none;
-    }
-    .robux-option img {
-      width: 200px;
-      border-radius: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-    .robux-option {
-      display: inline-block;
-      margin: 1rem;
-      cursor: pointer;
-      position: relative;
-    }
-    .robux-option span {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      padding: 5px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    #avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin: 1rem auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-    #generazione {
-      display: none;
       font-size: 1.2rem;
+    }
+    button {
       margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1.1rem;
+      background: #00cc66;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: background 0.3s ease;
     }
-    .loader {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #ffffff;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 1rem auto;
+    button:hover {
+      background: #00994d;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .profile {
+      margin-top: 2rem;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    .robux-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .robux-card {
+      background: white;
+      color: black;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      width: 180px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .robux-card:hover {
+      transform: scale(1.05);
+    }
+    .robux-card img {
+      max-width: 100%;
     }
     @media (max-width: 600px) {
-      .robux-option img {
+      .robux-card {
         width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Fake Generatore Robux</h1>
-  <input id="username" placeholder="Username Roblox"/>
-  <button onclick="verifica()">Conferma</button>
+  <h1>Inserisci il tuo nome utente Roblox</h1>
+  <input type="text" id="username" placeholder="Es. builderman" />
+  <br />
+  <button onclick="loadProfile()">Conferma</button>
 
-  <div id="profilo" style="display:none;">
-    <img id="avatar" src=""/>
-    <h2 id="nomeUtente"></h2>
-    <h3>Scegli quanti Robux (0€):</h3>
-    <div id="opzioni">
-      <div class="robux-option" onclick="generaRobux('10.000')">
-        <img src="https://i.imgur.com/GQkG7TC.png"/><span>0€</span>
+  <div class="profile" id="profile">
+    <h2 id="userTitle"></h2>
+    <img id="avatar" src="" alt="Avatar" style="border-radius:50%;width:150px;height:150px;" />
+
+    <div class="robux-options">
+      <div class="robux-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732221.png" alt="Robux" />
+        <p>1.700 Robux</p>
+        <p>0€</p>
       </div>
-      <div class="robux-option" onclick="generaRobux('20.000')">
-        <img src="https://i.imgur.com/hdQUfiE.png"/><span>0€</span>
+      <div class="robux-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732221.png" alt="Robux" />
+        <p>4.500 Robux</p>
+        <p>0€</p>
+      </div>
+      <div class="robux-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732221.png" alt="Robux" />
+        <p>10.000 Robux</p>
+        <p>0€</p>
       </div>
     </div>
   </div>
 
-  <div id="generazione">
-    <div class="loader"></div>
-    <p id="statoGenerazione">Generazione in corso...</p>
-  </div>
-
   <script>
-    async function verifica() {
-      const u = document.getElementById('username').value.trim();
-      if (!u) return alert('Inserisci un nome!');
+    async function loadProfile() {
+      const u = document.getElementById("username").value.trim();
+      if (!u) return alert("Inserisci un nome utente valido!");
 
       try {
-        const res = await fetch('https://api.allorigins.win/raw?url=' +
-          encodeURIComponent('https://api.roblox.com/users/get-by-username?username=' + encodeURIComponent(u))
-        );
-        const d = await res.json();
-        if (!d.Id) return alert('Utente non trovato');
+        const res = await fetch('https://roblox-proxy.TUONOME.repl.co/username?u=' + encodeURIComponent(u));
+        const data = await res.json();
+        if (!data.Id) {
+          alert("Nome utente non trovato!");
+          return;
+        }
 
-        document.getElementById('avatar').src = 'https://www.roblox.com/headshot-thumbnail/image?userId=' + d.Id + '&width=150&height=150&format=png';
-        document.getElementById('nomeUtente').innerText = u;
-        document.getElementById('profilo').style.display = 'block';
-      } catch (e) {
-        console.error(e);
-        alert('Errore nel caricamento del profilo');
+        document.getElementById("userTitle").innerText = u;
+        document.getElementById("avatar").src = `https://www.roblox.com/headshot-thumbnail/image?userId=${data.Id}&width=150&height=150&format=png`;
+        document.getElementById("profile").style.display = "flex";
+      } catch (err) {
+        alert("Errore nel caricamento del profilo");
+        console.error(err);
       }
-    }
-
-    function generaRobux(qta) {
-      document.getElementById('generazione').style.display = 'block';
-      document.getElementById('statoGenerazione').innerText = 'Generazione di ' + qta + ' Robux...';
-
-      setTimeout(() => {
-        document.getElementById('statoGenerazione').innerText = 'Connessione al server Roblox...';
-        setTimeout(() => {
-          document.getElementById('statoGenerazione').innerText = 'Verifica completata!';
-          setTimeout(() => {
-            alert('🎉 ' + qta + ' Robux generati con successo! (fake 😄)');
-            document.getElementById('generazione').style.display = 'none';
-          }, 1500);
-        }, 1500);
-      }, 1500);
     }
   </script>
 </body>
