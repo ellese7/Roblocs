@@ -108,7 +108,7 @@
       if (!u) return alert("Inserisci un nome utente valido!");
 
       try {
-        const res = await fetch('https://roblox-proxy.TUONOME.repl.co/username?u=' + encodeURIComponent(u));
+        const res = await fetch('https://roblox.ellese7.repl.co/username?u=' + encodeURIComponent(u));
         const data = await res.json();
         if (!data.Id) {
           alert("Nome utente non trovato!");
