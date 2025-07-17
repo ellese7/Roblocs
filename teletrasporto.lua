@@ -81,7 +81,7 @@ tpButton.Parent = frame
 setButton.MouseButton1Click:Connect(setBase)
 tpButton.MouseButton1Click:Connect(teleportToBase)
 
--- Drag functionality
+-- 🔒 Drag limitato solo alla DRAGBAR
 local dragging = false
 local dragStart
 local startPos
