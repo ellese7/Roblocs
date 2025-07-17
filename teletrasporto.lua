@@ -3,12 +3,11 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local UserInputService = game:GetService("UserInputService")
 
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-
 local basePosition = nil
 
 local function setBase()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
     if hrp then
         basePosition = hrp.Position
         print("Base impostata a:", basePosition)
@@ -16,11 +15,14 @@ local function setBase()
 end
 
 local function teleportToBase()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
     if basePosition and hrp then
         hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
         print("Teletrasportato alla base!")
     else
-        warn("Posizione base non impostata!")
+        warn("Posizione base non impostata o HumanoidRootPart mancante!")
     end
 end
 
