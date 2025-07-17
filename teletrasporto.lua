@@ -39,7 +39,7 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 180, 0, 120) -- Doppia altezza per due bottoni
+frame.Size = UDim2.new(0, 180, 0, 120)
 frame.Position = UDim2.new(0.5, -90, 0.8, 0)
 frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.BorderSizePixel = 0
@@ -47,6 +47,7 @@ frame.AnchorPoint = Vector2.new(0.5, 0)
 frame.Parent = screenGui
 frame.BackgroundTransparency = 0.15
 
+-- Buttons
 local setButton = Instance.new("TextButton")
 setButton.Size = UDim2.new(1, 0, 0.5, 0)
 setButton.Position = UDim2.new(0, 0, 0, 0)
@@ -86,4 +87,43 @@ end)
 
 tpButton.MouseButton1Click:Connect(function()
     teleportToBase()
+end)
+
+-- 🔴 Funzione per trascinare il frame
+local UserInputService = game:GetService("UserInputService")
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                               startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
 end)
