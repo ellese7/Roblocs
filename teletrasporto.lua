@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
 
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
@@ -39,18 +40,27 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 180, 0, 120)
-frame.Position = UDim2.new(0.5, -90, 0.8, 0)
+frame.Size = UDim2.new(0, 180, 0, 150)
+frame.Position = UDim2.new(0.5, -90, 0.75, 0)
 frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0.5, 0)
 frame.Parent = screenGui
 frame.BackgroundTransparency = 0.15
 
--- Buttons
+-- DRAG BAR
+local dragBar = Instance.new("TextLabel")
+dragBar.Size = UDim2.new(1, 0, 0, 30)
+dragBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+dragBar.Text = " Move"
+dragBar.TextColor3 = Color3.new(1,1,1)
+dragBar.Font = Enum.Font.Gotham
+dragBar.TextSize = 14
+dragBar.Parent = frame
+
 local setButton = Instance.new("TextButton")
-setButton.Size = UDim2.new(1, 0, 0.5, 0)
-setButton.Position = UDim2.new(0, 0, 0, 0)
+setButton.Size = UDim2.new(1, 0, 0, 40)
+setButton.Position = UDim2.new(0, 0, 0, 30)
 setButton.BackgroundColor3 = Color3.fromRGB(100, 180, 100)
 setButton.TextColor3 = Color3.new(1, 1, 1)
 setButton.Font = Enum.Font.GothamBold
@@ -59,50 +69,34 @@ setButton.Text = "Set TP"
 setButton.Parent = frame
 
 local tpButton = Instance.new("TextButton")
-tpButton.Size = UDim2.new(1, 0, 0.5, 0)
-tpButton.Position = UDim2.new(0, 0, 0.5, 0)
+tpButton.Size = UDim2.new(1, 0, 0, 40)
+tpButton.Position = UDim2.new(0, 0, 0, 70)
 tpButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
 tpButton.TextColor3 = Color3.new(1, 1, 1)
 tpButton.Font = Enum.Font.GothamBold
-tpButton.TextSize = 24
+tpButton.TextSize = 20
 tpButton.Text = "Your Base"
 tpButton.Parent = frame
 
--- Hover effects
-local function setupHover(button, colorDefault, colorHover)
-    button.MouseEnter:Connect(function()
-        button.BackgroundColor3 = colorHover
-    end)
-    button.MouseLeave:Connect(function()
-        button.BackgroundColor3 = colorDefault
-    end)
-end
+setButton.MouseButton1Click:Connect(setBase)
+tpButton.MouseButton1Click:Connect(teleportToBase)
 
-setupHover(setButton, Color3.fromRGB(100,180,100), Color3.fromRGB(120,200,120))
-setupHover(tpButton, Color3.fromRGB(70,130,180), Color3.fromRGB(90,160,210))
-
-setButton.MouseButton1Click:Connect(function()
-    setBase()
-end)
-
-tpButton.MouseButton1Click:Connect(function()
-    teleportToBase()
-end)
-
--- 🔴 Funzione per trascinare il frame
-local UserInputService = game:GetService("UserInputService")
-local dragging
-local dragInput
+-- Drag functionality
+local dragging = false
 local dragStart
 local startPos
 
-local function updateInput(input)
-    local delta = input.Position - dragStart
-    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-                               startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+local function onInputChanged(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
 end
 
-frame.InputBegan:Connect(function(input)
+dragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
@@ -116,14 +110,4 @@ frame.InputBegan:Connect(function(input)
     end
 end)
 
-frame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        updateInput(input)
-    end
-end)
+UserInputService.InputChanged:Connect(onInputChanged)
