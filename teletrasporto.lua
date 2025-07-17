@@ -8,15 +8,6 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 
 local basePosition = nil
 
-local function updateCharacterRefs()
-    character = player.Character
-    if character then
-        hrp = character:WaitForChild("HumanoidRootPart", 5)
-    end
-end
-
-player.CharacterAdded:Connect(updateCharacterRefs)
-
 local function setBase()
     if hrp then
         basePosition = hrp.Position
@@ -26,7 +17,7 @@ end
 
 local function teleportToBase()
     if basePosition and hrp then
-        hrp.CFrame = CFrame.new(basePosition + Vector3.new(0, 5, 0))
+        hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
         print("Teletrasportato alla base!")
     else
         warn("Posizione base non impostata!")
@@ -48,7 +39,6 @@ frame.AnchorPoint = Vector2.new(0.5, 0)
 frame.Parent = screenGui
 frame.BackgroundTransparency = 0.15
 
--- DRAG BAR
 local dragBar = Instance.new("TextLabel")
 dragBar.Size = UDim2.new(1, 0, 0, 30)
 dragBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -81,20 +71,10 @@ tpButton.Parent = frame
 setButton.MouseButton1Click:Connect(setBase)
 tpButton.MouseButton1Click:Connect(teleportToBase)
 
--- 🔒 Drag limitato solo alla DRAGBAR
+-- DRAG LIMITATO SOLO ALLA DRAGBAR
 local dragging = false
 local dragStart
 local startPos
-
-local function onInputChanged(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
-end
 
 dragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -110,4 +90,14 @@ dragBar.InputBegan:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(onInputChanged)
+dragBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end
+end)
