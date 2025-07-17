@@ -1,11 +1,10 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local UserInputService = game:GetService("UserInputService")
 
 local basePosition = nil
 local canTeleport = true
-local teleportCooldown = 2 -- secondi di cooldown
+local teleportCooldown = 2
 
 local function setBase()
     local character = player.Character or player.CharacterAdded:Wait()
@@ -33,11 +32,12 @@ local function teleportToBase()
         wait(teleportCooldown)
         canTeleport = true
     else
-        warn("Posizione base non impostata o HumanoidRootPart mancante!")
+        warn("Base non impostata o HumanoidRootPart mancante!")
     end
 end
 
--- GUI
+-- GUI (come prima, identica)
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportGui"
 screenGui.ResetOnSpawn = false
@@ -84,7 +84,8 @@ tpButton.Parent = frame
 setButton.MouseButton1Click:Connect(setBase)
 tpButton.MouseButton1Click:Connect(teleportToBase)
 
--- DRAG
+-- Dragging code identico come prima
+
 local dragging = false
 local dragStart
 local startPos
@@ -115,11 +116,11 @@ dragBar.InputBegan:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
     updateDrag(input)
 end)
 
-UserInputService.InputEnded:Connect(function(input)
+game:GetService("UserInputService").InputEnded:Connect(function(input)
     if input == currentInput then
         dragging = false
     end
