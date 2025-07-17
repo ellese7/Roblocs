@@ -4,6 +4,8 @@ local playerGui = player:WaitForChild("PlayerGui")
 local UserInputService = game:GetService("UserInputService")
 
 local basePosition = nil
+local canTeleport = true
+local teleportCooldown = 2 -- secondi di cooldown
 
 local function setBase()
     local character = player.Character or player.CharacterAdded:Wait()
@@ -15,12 +17,21 @@ local function setBase()
 end
 
 local function teleportToBase()
+    if not canTeleport then
+        print("In cooldown, attendi prima di teletrasportarti di nuovo.")
+        return
+    end
+
     local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
 
     if basePosition and hrp then
         hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
         print("Teletrasportato alla base!")
+
+        canTeleport = false
+        wait(teleportCooldown)
+        canTeleport = true
     else
         warn("Posizione base non impostata o HumanoidRootPart mancante!")
     end
