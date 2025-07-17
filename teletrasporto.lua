@@ -1,43 +1,47 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
 
 local basePosition = nil
 local canTeleport = true
 local teleportCooldown = 2
 
 local function setBase()
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:WaitForChild("HumanoidRootPart")
-    if hrp then
-        basePosition = hrp.Position
-        print("Base impostata a:", basePosition)
-    end
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    if hrp then
+        basePosition = hrp.Position
+        print("Base impostata a:", basePosition)
+    end
 end
 
 local function teleportToBase()
-    if not canTeleport then
-        print("In cooldown, attendi prima di teletrasportarti di nuovo.")
-        return
-    end
+    if not canTeleport then
+        print("In cooldown, attendi prima di teletrasportarti di nuovo.")
+        return
+    end
 
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:WaitForChild("HumanoidRootPart")
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
 
-    if basePosition and hrp then
-        hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
-        print("Teletrasportato alla base!")
+    if basePosition and hrp then
+        hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
+        print("Teletrasportato alla base!")
 
-        canTeleport = false
-        wait(teleportCooldown)
-        canTeleport = true
-    else
-        warn("Base non impostata o HumanoidRootPart mancante!")
-    end
+        canTeleport = false
+        -- prova a mantenere la posizione per 1 secondo bloccando movimenti forzati
+        for i=1,10 do
+            wait(0.1)
+            hrp.CFrame = CFrame.new(basePosition + Vector3.new(0,5,0))
+        end
+        canTeleport = true
+    else
+        warn("Base non impostata o HumanoidRootPart mancante!")
+    end
 end
 
--- GUI (come prima, identica)
-
+-- GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportGui"
 screenGui.ResetOnSpawn = false
@@ -84,44 +88,41 @@ tpButton.Parent = frame
 setButton.MouseButton1Click:Connect(setBase)
 tpButton.MouseButton1Click:Connect(teleportToBase)
 
--- Dragging code identico come prima
-
+-- Dragging code
 local dragging = false
 local dragStart
 local startPos
 local currentInput
 
 local function updateDrag(input)
-    if dragging and input == currentInput then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
+    if dragging and input == currentInput then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
 end
 
 dragBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-        currentInput = input
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        currentInput = input
 
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    updateDrag(input)
-end)
+UserInputService.InputChanged:Connect(updateDrag)
 
-game:GetService("UserInputService").InputEnded:Connect(function(input)
-    if input == currentInput then
-        dragging = false
-    end
+UserInputService.InputEnded:Connect(function(input)
+    if input == currentInput then
+        dragging = false
+    end
 end)
