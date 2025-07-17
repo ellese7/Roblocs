@@ -71,16 +71,28 @@ tpButton.Parent = frame
 setButton.MouseButton1Click:Connect(setBase)
 tpButton.MouseButton1Click:Connect(teleportToBase)
 
--- DRAG LIMITATO SOLO ALLA DRAGBAR
+-- DRAG
 local dragging = false
 local dragStart
 local startPos
+local currentInput
+
+local function updateDrag(input)
+    if dragging and input == currentInput then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end
 
 dragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
+        currentInput = input
 
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
@@ -90,14 +102,12 @@ dragBar.InputBegan:Connect(function(input)
     end
 end)
 
-dragBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        if dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
+UserInputService.InputChanged:Connect(function(input)
+    updateDrag(input)
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input == currentInput then
+        dragging = false
     end
 end)
